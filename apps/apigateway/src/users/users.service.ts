@@ -1,6 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { Auth_Service, CreateUserDto, UpdateUserDto, USERS_SERVICE_NAME, UsersServiceClient } from '@app/common';
+import { Auth_Service, CreateUserDto, PaginationDto, UpdateUserDto, USERS_SERVICE_NAME, UsersServiceClient } from '@app/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import { ReplaySubject } from 'rxjs';
 
 
 @Injectable()
@@ -34,4 +35,26 @@ export class UsersService implements OnModuleInit {
   remove(id: string) {
     return this.usersService.removeUser({ id });
   }
+
+ 
+  emailUsers(){
+    const users$ = new ReplaySubject<PaginationDto>();
+    
+    users$.next({page:0,skip:25})
+    users$.next({page:1,skip:25})
+    users$.next({page:2,skip:25})
+    users$.next({page:3,skip:25})
+
+    users$.complete()
+
+   let chunkNo = 1;
+   this.usersService.queryUsers(users$).subscribe((users)=>{
+    console.log('Chunk',users)
+    chunkNo += 1
+   });
+
+   
+
+  }
+
 }
